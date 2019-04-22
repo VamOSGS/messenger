@@ -1,22 +1,16 @@
 import React, { Component } from 'react';
+import Button from '@material-ui/core/Button';
 import firebase from '../../firebase';
 
-class Profile extends Component {
-  // eslint-disable-next-line class-methods-use-this
-  SignOut() {
-    firebase.auth().signOut();
-  }
-  render() {
-    console.log(this.props);
-    return (
-      <div>
-        <button onClick={this.SignOut}>Log out</button>
-        <div>Profile</div>
-        <div>Email: {this.props.user.email}</div>
-        <div>Name: {this.props.user.displayName}</div>
-      </div>
-    );
-  }
-}
-
+const Profile = ({ user }) => {
+  const SignOut = () => firebase.auth().signOut();
+  return (
+    <div>
+      <div>Profile</div>
+      <div>Email: {user.email}</div>
+      <div>Username: {user.displayName}</div>
+      <Button variant="contained" onClick={SignOut}>Log out</Button>
+    </div>
+  );
+};
 export default Profile;

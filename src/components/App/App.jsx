@@ -64,6 +64,11 @@ class App extends Component {
       <div className="App">
         <h1 className="title">MESSENGER</h1>
         <Router>
+          <div>
+            <Route exact path="/" component={Home} />
+            <Route exact path="/login" component={Login} />
+            <Route exact path="/signup" component={Signup} />
+          </div>
           <PrivateRoute
             exact
             user={currentUser}
@@ -71,11 +76,6 @@ class App extends Component {
             component={Profile}
             authenticated={authenticated}
           />
-          <div>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/signup" component={Login} />
-          </div>
         </Router>
         {/* <div className="NICE">
           <div className="form__message">
