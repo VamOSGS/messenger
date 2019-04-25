@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
+import BottomNavigation from '@material-ui/core/BottomNavigation';
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import firebase, { database } from '../../firebase';
+import RestoreIcon from '@material-ui/icons/Restore';
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import LocationOnIcon from '@material-ui/icons/LocationOn';
+import { database, auth } from '../../firebase';
 import './AppStyles.less';
 import Home from '../Home';
 import Login from '../Login';
@@ -18,18 +23,19 @@ class App extends Component {
       loading: true,
       authenticated: false,
       user: null,
+      value: 0,
     };
     this.messageRef = database().ref('/messages');
     this.usersRef = database().ref('/users');
     // this.listenMessages();
   }
   componentDidMount() {
-    firebase.auth().onAuthStateChanged((user) => {
+    auth().onAuthStateChanged((user) => {
       if (user) {
         this.setState({
           authenticated: true,
-          currentUser: user,
           loading: false,
+          currentUser: user,
         });
       } else {
         this.setState({
@@ -56,8 +62,11 @@ class App extends Component {
     console.log(this.textInput.current.value);
     this.messageRef.push(this.textInput.current.value);
   };
+  handleChange = (event, value) => {
+    this.setState({ value });
+  };
   render() {
-    const { authenticated, loading, currentUser } = this.state;
+    const { authenticated, loading, currentUser, value } = this.state;
 
     if (loading) {
       return <CircularProgress />;
@@ -80,6 +89,15 @@ class App extends Component {
             authenticated={authenticated}
           />
         </Router>
+        <BottomNavigation
+          value={value}
+          onChange={this.handleChange}
+          showLabels
+        >
+          <BottomNavigationAction label="Recents" icon={<RestoreIcon />} />
+          <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
+          <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
+        </BottomNavigation>
         {/* <div className="NICE">
           <div className="form__message">
             {this.state.list.map((item, index) => <li key={index}>{item}</li>)}

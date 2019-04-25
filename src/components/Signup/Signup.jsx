@@ -6,7 +6,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import firebase, { database } from '../../firebase';
+import firebase, { database, auth } from '../../firebase';
 import './Signup.less';
 
 class Signup extends Component {
@@ -72,7 +72,7 @@ class Signup extends Component {
       this.setState({ loading: true });
       try {
         const checkUsername = await this.checkUsername(username);
-        const registerUser = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const registerUser = await auth().createUserWithEmailAndPassword(email, password);
         const setData = await database()
           .ref(`/users/${username}`)
           .set({
@@ -81,7 +81,7 @@ class Signup extends Component {
             name,
             uid: registerUser.user.uid,
           });
-        const setUsername = await firebase.auth().currentUser.updateProfile({
+        const setUsername = await auth().currentUser.updateProfile({
           displayName: username,
         });
         this.props.history.push('/');

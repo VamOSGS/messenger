@@ -1,0 +1,69 @@
+.Profile {
+  min-width: 275px;
+  max-width: 300px;
+  margin: auto;
+  .Image {
+    transition: 0.3s;
+    .menu {
+      display: flex;
+      flex-direction: column;
+      transition: 0.3s;
+      position: relative;
+      top: -100px;
+      height: 0;
+      opacity: 0;
+      z-index: -1;
+      &.open {
+        opacity: 1;
+        z-index: 1;
+      }
+      .uploadInput {
+        display: none;
+      }
+      .button {
+        margin: auto;
+        > span {
+          color: white;
+          font-size: 12px;
+          svg {
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+    
+    .profilePicture {
+      margin: auto;
+      width: 180px;
+      height: 180px;
+
+      .imageLoader {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        margin: auto;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0, 0, 0, 0);
+        transition: 0.4s;
+      }
+      .dark {
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .loading {
+        background: rgba(0, 0, 0, 0.7);
+      }
+      img {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+}

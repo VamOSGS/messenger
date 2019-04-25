@@ -5,12 +5,12 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import firebase from '../../firebase';
+import { auth } from '../../firebase';
 import './Login.less';
 
 class LogInContainer extends Component {
   static getDerivedStateFromProps(props, state) {
-    if (firebase.auth().currentUser) {
+    if (auth().currentUser) {
       props.history.push('/');
     }
     return null;
@@ -29,7 +29,7 @@ class LogInContainer extends Component {
     if (!email.error && !password.error) {
       this.setState({ loading: true });
       try {
-        const user = await firebase.auth().signInWithEmailAndPassword(email.value, password.value);
+        const user = await auth().signInWithEmailAndPassword(email.value, password.value);
         this.props.history.push('/');
       } catch (error) {
         this.setState({ loading: false });
