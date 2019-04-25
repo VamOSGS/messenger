@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import firebase from '../../firebase';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import firebase, { database } from '../../firebase';
 import './AppStyles.less';
 import Home from '../Home';
 import Login from '../Login';
@@ -18,13 +19,11 @@ class App extends Component {
       authenticated: false,
       user: null,
     };
-    this.messageRef = firebase
-      .database()
-      .ref()
-      .child('messages');
-    this.listenMessages();
+    this.messageRef = database().ref('/messages');
+    this.usersRef = database().ref('/users');
+    // this.listenMessages();
   }
-  componentWillMount() {
+  componentDidMount() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         this.setState({
@@ -41,15 +40,18 @@ class App extends Component {
       }
     });
   }
-  listenMessages() {
-    this.messageRef.limitToLast(10).on('value', (messages) => {
-      if (Object.values(messages.val())) {
-        this.setState({
-          list: Object.values(messages.val()),
-        });
-      }
-    });
-  }
+  updateUser = (currentUser) => {
+    this.setState({ currentUser });
+  };
+  // listenMessages() {
+  //   this.messageRef.limitToLast(10).on('value', (messages) => {
+  //     if (Object.values(messages.val())) {
+  //       this.setState({
+  //         list: Object.values(messages.val()),
+  //       });
+  //     }
+  //   });
+  // }
   handleSubmit = () => {
     console.log(this.textInput.current.value);
     this.messageRef.push(this.textInput.current.value);
@@ -58,7 +60,7 @@ class App extends Component {
     const { authenticated, loading, currentUser } = this.state;
 
     if (loading) {
-      return <p>Loading..</p>;
+      return <CircularProgress />;
     }
     return (
       <div className="App">
@@ -72,6 +74,7 @@ class App extends Component {
           <PrivateRoute
             exact
             user={currentUser}
+            update={this.updateUser}
             path="/"
             component={Profile}
             authenticated={authenticated}

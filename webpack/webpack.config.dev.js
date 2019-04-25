@@ -1,6 +1,7 @@
 const merge = require('webpack-merge');
 const PATHS = require('./PATHS');
 const parts = require('./webpack.parts');
+
 require('dotenv').config();
 
 const development = merge(

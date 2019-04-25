@@ -26,6 +26,9 @@ const common = {
   resolve: {
     modules: ['node_modules', PATHS.SRC],
     extensions: ['.js', '.jsx', '.json', '.less'],
+    alias: {
+      'react-dom': '@hot-loader/react-dom',
+    },
   },
   plugins: [
     new CopyWebpackPlugin([{ from: 'src/assets/*', to: 'assets/', flatten: true }]),

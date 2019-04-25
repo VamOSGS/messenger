@@ -1,13 +1,7 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-import { hot } from 'react-hot-loader';
+import { hot } from 'react-hot-loader/root';
 import App from '../App';
-import store from '../../store';
 
-const Root = () => (
-  <Provider store={store}>
-    <App />
-  </Provider>
-);
+const Root = () => <App />;
 
-export default hot(module)(Root);
+export default hot(Root);
