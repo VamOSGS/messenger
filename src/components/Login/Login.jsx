@@ -9,9 +9,9 @@ import { auth } from '../../firebase';
 import './Login.less';
 
 class LogInContainer extends Component {
-  static getDerivedStateFromProps(props, state) {
+  static getDerivedStateFromProps(props) {
     if (auth().currentUser) {
-      props.history.push('/');
+      props.history.push('/me');
     }
     return null;
   }
@@ -30,7 +30,7 @@ class LogInContainer extends Component {
       this.setState({ loading: true });
       try {
         const user = await auth().signInWithEmailAndPassword(email.value, password.value);
-        this.props.history.push('/');
+        this.props.history.push('/me');
       } catch (error) {
         this.setState({ loading: false });
         if (error.code === 'auth/wrong-password') {

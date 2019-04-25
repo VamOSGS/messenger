@@ -1,17 +1,14 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import BottomNavigation from '@material-ui/core/BottomNavigation';
-import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
+import Card from '@material-ui/core/Card';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import RestoreIcon from '@material-ui/icons/Restore';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
 import { database, auth } from '../../firebase';
 import './AppStyles.less';
 import Home from '../Home';
 import Login from '../Login';
 import Signup from '../Signup';
 import Profile from '../Profile';
+import Navigation from '../Navigation';
 import PrivateRoute from '../Signup/PrivateRoute';
 
 class App extends Component {
@@ -23,7 +20,6 @@ class App extends Component {
       loading: true,
       authenticated: false,
       user: null,
-      value: 0,
     };
     this.messageRef = database().ref('/messages');
     this.usersRef = database().ref('/users');
@@ -58,15 +54,15 @@ class App extends Component {
   //     }
   //   });
   // }
+
   handleSubmit = () => {
     console.log(this.textInput.current.value);
     this.messageRef.push(this.textInput.current.value);
   };
-  handleChange = (event, value) => {
-    this.setState({ value });
-  };
   render() {
-    const { authenticated, loading, currentUser, value } = this.state;
+    const {
+      authenticated, loading, currentUser, value,
+    } = this.state;
 
     if (loading) {
       return <CircularProgress />;
@@ -74,30 +70,14 @@ class App extends Component {
     return (
       <div className="App">
         <h1 className="title">MESSENGER</h1>
-        <Router>
-          <div>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/signup" component={Signup} />
-          </div>
-          <PrivateRoute
-            exact
-            user={currentUser}
-            update={this.updateUser}
-            path="/"
-            component={Profile}
+        <Card className="Main">
+          <Navigation
+            updateUser={this.updateUser}
             authenticated={authenticated}
+            currentUser={currentUser}
           />
-        </Router>
-        <BottomNavigation
-          value={value}
-          onChange={this.handleChange}
-          showLabels
-        >
-          <BottomNavigationAction label="Recents" icon={<RestoreIcon />} />
-          <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
-          <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
-        </BottomNavigation>
+        </Card>
+
         {/* <div className="NICE">
           <div className="form__message">
             {this.state.list.map((item, index) => <li key={index}>{item}</li>)}

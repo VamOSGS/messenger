@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import Button from '@material-ui/core/Button';
-import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -15,16 +14,20 @@ class Profile extends Component {
     loading: true,
   };
   componentDidMount() {
-    database()
-      .ref(`/users/${this.props.user.displayName}`)
-      .on('value', (snapshot) => {
-        this.props.update(snapshot.val());
-        const imageURL = auth().currentUser.photoURL;
-        if (imageURL) {
-          this.setState({ loading: false, imageURL });
-        }
-        this.setState({ loading: false });
-      });
+    const username = this.props.user.displayName || this.props.user.username;
+    if (username) {
+      database()
+        .ref(`/users/${username}`)
+        .on('value', (snapshot) => {
+          console.log(username, snapshot.val());
+          this.props.update(snapshot.val());
+          const imageURL = auth().currentUser.photoURL;
+          if (imageURL) {
+            this.setState({ loading: false, imageURL });
+          }
+          this.setState({ loading: false });
+        });
+    }
   }
   SignOut = () => {
     auth().signOut();
@@ -34,7 +37,6 @@ class Profile extends Component {
     const storageRef = storage()
       .ref(`/user-images/${this.props.user.username}`)
       .child(`${this.props.user.username}`);
-    console.log(`${this.props.user.username}`);
     try {
       const upload = await storageRef.put(file, { contentType: file.type });
       const imageURL = await storageRef.getDownloadURL();
@@ -47,10 +49,10 @@ class Profile extends Component {
     }
   };
   render() {
-    const { user, classes } = this.props;
+    const { user } = this.props;
     const { loading, imageURL } = this.state;
     return (
-      <Card className="Profile">
+      <div className="Profile">
         <CardContent>
           <Typography color="textSecondary" gutterBottom>
             Your Profile
@@ -75,7 +77,7 @@ class Profile extends Component {
             Log out
           </Button>
         </CardActions>
-      </Card>
+      </div>
     );
   }
 }
