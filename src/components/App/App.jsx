@@ -69,7 +69,6 @@ class App extends Component {
     }
     return (
       <div className="App">
-        <h1 className="title">MESSENGER</h1>
         <Card className="Main">
           <Navigation
             updateUser={this.updateUser}
