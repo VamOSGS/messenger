@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -7,78 +7,36 @@ import Typography from '@material-ui/core/Typography';
 import { database, auth, storage } from '../../firebase';
 import Image from './Image';
 import './Profile.less';
+import { useStateValue } from '../../context';
 
-class Profile extends Component {
-  state = {
-    imageURL: null,
-    loading: true,
-  };
-  componentDidMount() {
-    const username = this.props.user.displayName || this.props.user.username;
-    if (username) {
-      database()
-        .ref(`/users/${username}`)
-        .on('value', (snapshot) => {
-          console.log(username, snapshot.val());
-          this.props.update(snapshot.val());
-          const imageURL = auth().currentUser.photoURL;
-          if (imageURL) {
-            this.setState({ loading: false, imageURL });
-          }
-          this.setState({ loading: false });
-        });
-    }
-  }
-  SignOut = () => {
+const Profile = () => {
+  const [{ user }] = useStateValue();
+  const SignOut = () => {
     auth().signOut();
   };
-  handleUpload = async (e) => {
-    const file = await e.target.files[0];
-    const storageRef = storage()
-      .ref(`/user-images/${this.props.user.username}`)
-      .child(`${this.props.user.username}`);
-    try {
-      const upload = await storageRef.put(file, { contentType: file.type });
-      const imageURL = await storageRef.getDownloadURL();
-      const updateUser = await auth().currentUser.updateProfile({
-        photoURL: imageURL,
-      });
-      this.setState({ imageURL });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  render() {
-    const { user } = this.props;
-    const { loading, imageURL } = this.state;
-    return (
-      <div className="Profile">
-        <CardContent>
-          <Typography color="textSecondary" gutterBottom>
-            Your Profile
+  return (
+    <div className="Profile">
+      <CardContent>
+        <Typography color="textSecondary" gutterBottom>
+          Your Profile
+        </Typography>
+
+        <Fragment>
+          <Image />
+          <Typography variant="h5" component="h2">
+            {user.username}
           </Typography>
+          <Typography color="textSecondary">{user.name}</Typography>
+          <Typography color="textSecondary">{user.email}</Typography>
+        </Fragment>
+      </CardContent>
 
-          {loading ? (
-            <LinearProgress />
-          ) : (
-            <Fragment>
-              <Image imageURL={imageURL} user={user} />
-              <Typography variant="h5" component="h2">
-                {user.username}
-              </Typography>
-              <Typography color="textSecondary">{user.name}</Typography>
-              <Typography color="textSecondary">{user.email}</Typography>
-            </Fragment>
-          )}
-        </CardContent>
-
-        <CardActions>
-          <Button type="file" onClick={this.SignOut} size="small">
-            Log out
-          </Button>
-        </CardActions>
-      </div>
-    );
-  }
-}
+      <CardActions>
+        <Button type="file" onClick={SignOut} size="small">
+          Log out
+        </Button>
+      </CardActions>
+    </div>
+  );
+};
 export default Profile;

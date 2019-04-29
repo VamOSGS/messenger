@@ -1,5 +1,6 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Route, Redirect } from 'react-router-dom';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Navbar from './Navbar';
 import Home from '../Home';
 import Login from '../Login';
@@ -8,29 +9,42 @@ import Profile from '../Profile';
 import Messages from '../Messages';
 import Friends from '../Friends';
 import PrivateRoute from '../Signup/PrivateRoute';
+import { auth, database } from '../../firebase';
+import { useStateValue } from '../../context';
 
-const Navigation = props => (
-  <Fragment>
-    <Route exact path="/login" component={Login} />
-    <Route exact path="/signup" component={Signup} />
-    <Route
-      exact
-      path="/"
-      render={() => (props.authenticated ? <Redirect to="/me" /> : <Redirect to="/login" />)}
-    />
-
-    <PrivateRoute
-      exact
-      user={props.currentUser}
-      update={props.updateUser}
-      authenticated={props.authenticated}
-      path="/me"
-      component={Profile}
-    />
-    <PrivateRoute exact path="/messages" component={Messages} authenticated={props.authenticated} />
-    <PrivateRoute exact path="/friends" component={Friends} authenticated={props.authenticated} />
-    {props.authenticated && <Navbar user={props.currentUser} />}
-  </Fragment>
-);
+const Navigation = (props) => {
+  const [{ authenticated }, dispatch] = useStateValue();
+  const [loading, setLoading] = useState('true');
+  useEffect(() => {
+    auth().onAuthStateChanged((user) => {
+      if (user) {
+        database()
+          .ref(`/users/${user.displayName}`)
+          .on('value', (snapshot) => {
+            dispatch({
+              type: 'setUser',
+              payload: snapshot.val(),
+            });
+            setLoading(false);
+          });
+      } else {
+        setLoading(false);
+        dispatch({
+          type: 'removeUser',
+        });
+      }
+    });
+  }, []);
+  if (loading) return <CircularProgress className="AppLoader" />;
+  return (
+    <Fragment>
+      <Route exact path="/login" component={Login} />
+      <Route exact path="/signup" component={Signup} />
+      <Route exact path="/" render={() => <Redirect to="/me" />} />
+      <PrivateRoute path="/me" component={Profile} />
+      {authenticated && <Navbar />}
+    </Fragment>
+  );
+};
 
 export default Navigation;

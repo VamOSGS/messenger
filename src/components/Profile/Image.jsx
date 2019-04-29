@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
@@ -6,86 +6,93 @@ import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { auth, storage } from '../../firebase';
+import { auth, database, storage } from '../../firebase';
+import { useStateValue } from '../../context';
 
-class Image extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { imageURL: props.imageURL, loadingImage: false, imageMenu: false };
-    this.storageRef = storage().ref('/user-images');
-  }
-  handleUpload = async (e) => {
+const Image = () => {
+  const [loadingImage, setLoading] = useState(false);
+  const [menu, toggleMenu] = useState(false);
+  const [{ user }] = useStateValue();
+  const handleUpload = async (e) => {
     const file = await e.target.files[0];
     if (file) {
-      this.setState({ loadingImage: true, imageMenu: false });
-      const storageRef = storage()
-        .ref(`/user-images/${this.props.user.username}`)
-        .child(`${this.props.user.username}-image`);
+      setLoading(true);
+      toggleMenu(false);
+      const imageRef = storage()
+        .ref(`/user-images/${user.username}`)
+        .child(`${user.username}-image`);
       try {
-        const upload = await storageRef.put(file, { contentType: file.type });
-        const imageURL = await storageRef.getDownloadURL();
-        const updateUser = await auth().currentUser.updateProfile({
-          photoURL: imageURL,
+        const upload = await imageRef.put(file, { contentType: file.type });
+        const url = await imageRef.getDownloadURL();
+        const set = await auth().currentUser.updateProfile({
+          photoURL: url,
         });
-        this.setState({ imageURL, loadingImage: false });
+        await database()
+          .ref('/users')
+          .child(user.username)
+          .set({ ...user, imageURL: url });
+        setLoading(false);
       } catch (error) {
         console.log(error);
       }
     }
   };
-  deleteImage = async () => {
-    if (this.state.imageURL) {
-      this.setState({ loadingImage: true });
-      const deleteImage = await this.storageRef
-        .child(this.props.user.username)
-        .child(`${this.props.user.username}-image`)
+  const deleteImage = async () => {
+    if (user.imageURL) {
+      setLoading(true);
+      await storage()
+        .ref('/user-images')
+        .child(user.username)
+        .child(`${user.username}-image`)
         .delete();
-      const updateUser = await auth().currentUser.updateProfile({
+      await auth().currentUser.updateProfile({
         photoURL: null,
       });
-      this.setState({ imageURL: null, loadingImage: false });
+      await database()
+        .ref('/users')
+        .child(user.username)
+        .set({ ...user, imageURL: '' });
+      setLoading(false);
     }
   };
-  handleOpen = () => {
-    this.setState({ imageMenu: !this.state.imageMenu });
+  const handleOpen = () => {
+    toggleMenu(!menu);
   };
-  render() {
-    const { imageURL, imageMenu, loadingImage } = this.state;
-    return (
-      <div className="Image">
-        <CardActionArea onClick={this.handleOpen} className="profilePicture">
-          <div className={`imageLoader ${loadingImage && 'loading'} ${imageMenu && 'dark'}`}>
-            {loadingImage && <CircularProgress />}
-          </div>
-          {imageURL ? (
-            <CardMedia component="img" image={imageURL} title="Profile picture" />
-          ) : (
-            'You dont have image'
-          )}
-        </CardActionArea>
-        <CardActions className={`menu ${imageMenu && 'open'}`}>
-          <input
-            accept="image/*"
-            onChange={this.handleUpload}
-            className="uploadInput"
-            id="contained-button-file"
-            multiple
-            type="file"
-          />
-          <label className="button" htmlFor="contained-button-file">
-            <Button component="span" size="small">
-              {imageURL ? 'Change your image ' : 'Upload an image'} <CloudUploadIcon />
-            </Button>
-          </label>
-          {imageURL && (
-            <Button className="button" onClick={this.deleteImage} component="span" size="small">
-              Delete Image
-              <DeleteIcon />
-            </Button>
-          )}
-        </CardActions>
-      </div>
-    );
-  }
-}
+  const { imageURL } = user;
+  return (
+    <div className="Image">
+      <CardActionArea onClick={handleOpen} className="profilePicture">
+        <div className={`imageLoader ${loadingImage && 'loading'} ${menu && 'dark'}`}>
+          {loadingImage && <CircularProgress />}
+        </div>
+        {imageURL ? (
+          <CardMedia component="img" image={imageURL} title="Profile picture" />
+        ) : (
+          'You dont have image'
+        )}
+      </CardActionArea>
+      <CardActions className={`menu ${menu && 'open'}`}>
+        <input
+          accept="image/*"
+          onChange={handleUpload}
+          className="uploadInput"
+          id="contained-button-file"
+          multiple
+          type="file"
+        />
+        <label className="button" htmlFor="contained-button-file">
+          <Button component="span" size="small">
+            {imageURL ? 'Change your image ' : 'Upload an image'} <CloudUploadIcon />
+          </Button>
+        </label>
+        {imageURL && (
+          <Button className="button" onClick={deleteImage} component="span" size="small">
+            Delete Image
+            <DeleteIcon />
+          </Button>
+        )}
+      </CardActions>
+    </div>
+  );
+};
 export default Image;
