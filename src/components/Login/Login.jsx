@@ -22,10 +22,10 @@ function Login(props) {
     if (!email.error && !password.error) {
       setLoading(true);
       try {
-        const setUser = await auth().signInWithEmailAndPassword(email.value, password.value);
-        const getUser = await database()
+        const getUser = await auth().signInWithEmailAndPassword(email.value, password.value);
+        await database()
           .ref('/users/')
-          .child(setUser.user.displayName)
+          .child(getUser.user.displayName)
           .once('value', snapshot => dispatch({ type: 'setUser', payload: snapshot.val() }));
         props.history.push('/me');
       } catch (error) {

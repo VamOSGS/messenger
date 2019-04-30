@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Navbar from './Navbar';
-import Home from '../Home';
 import Login from '../Login';
 import Signup from '../Signup';
 import Profile from '../Profile';
@@ -12,7 +11,7 @@ import PrivateRoute from '../Signup/PrivateRoute';
 import { auth, database } from '../../firebase';
 import { useStateValue } from '../../context';
 
-const Navigation = (props) => {
+const Navigation = () => {
   const [{ authenticated }, dispatch] = useStateValue();
   const [loading, setLoading] = useState('true');
   useEffect(() => {
@@ -42,6 +41,8 @@ const Navigation = (props) => {
       <Route exact path="/signup" component={Signup} />
       <Route exact path="/" render={() => <Redirect to="/me" />} />
       <PrivateRoute path="/me" component={Profile} />
+      <PrivateRoute path="/messages" component={Messages} />
+      <PrivateRoute path="/friends" component={Friends} />
       {authenticated && <Navbar />}
     </Fragment>
   );

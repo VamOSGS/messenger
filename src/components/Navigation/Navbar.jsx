@@ -8,8 +8,8 @@ import { Link, withRouter } from 'react-router-dom';
 import './Navbar.less';
 
 const Navbar = () => {
+  const { pathname } = window.location;
   const getValue = () => {
-    const { pathname } = window.location;
     if (pathname === '/friends') {
       return 0;
     } else if (pathname === '/messages') {
@@ -18,7 +18,7 @@ const Navbar = () => {
     return 2;
   };
   const [value, setValue] = useState(getValue);
-
+  if (pathname === '/signup') return null;
   return (
     <BottomNavigation className="Navbar" value={value} onChange={(e, v) => setValue(v)}>
       <BottomNavigationAction component={Link} to="/friends" label="Friends" icon={<FaceIcon />} />

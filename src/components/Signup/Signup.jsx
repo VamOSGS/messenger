@@ -63,12 +63,12 @@ const Signup = (props) => {
     if (!email.error && !password.error && !username.error) {
       setLoading(true);
       try {
-        const checkUsernameTask = await checkUsername(username.value);
+        await checkUsername(username.value);
         const registerUser = await auth().createUserWithEmailAndPassword(
           email.value,
           password.value,
         );
-        const setData = await database()
+        await database()
           .ref(`/users/${username.value}`)
           .set({
             username: username.value,
@@ -77,16 +77,14 @@ const Signup = (props) => {
             uid: registerUser.user.uid,
             imageURL: '',
           });
-        const setUsernameTask = await auth().currentUser.updateProfile({
+        await database()
+          .ref('/users/')
+          .child(username.value)
+          .once('value', snapshot => dispatch({ type: 'setUser', payload: snapshot.val() }));
+        await auth().currentUser.updateProfile({
           displayName: username.value,
         });
-        await database()
-          .ref(`/users/${username.value}`)
-          .once('value', (snapshot) => {
-            setLoading(false);
-            dispatch({ type: 'setUser', payload: snapshot.val() });
-            props.history.push('/me');
-          });
+        props.history.push('/me');
       } catch (error) {
         setLoading(false);
         console.log(error);

@@ -1,31 +1,23 @@
 import React from 'react';
-import ListItem from '@material-ui/core/ListItem';
 import List from '@material-ui/core/List';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
-import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
+import Item from './Item';
 
-const ListComponent = ({ list }) => (
-  <List>
-    {list.map((friend, index) => (
-      <ListItem key={index} button alignItems="flex-start">
-        <ListItemAvatar>
-          <Avatar alt={`${friend.username}'s picture`} src={friend.imageURL} />
-        </ListItemAvatar>
-        <ListItemText
-          primary={friend.username}
-          secondary={
-            <React.Fragment>
-              <Typography component="span" color="textPrimary">
-                {friend.name}
-              </Typography>
+const ListComponent = ({ list, message }) => {
+  if (list) {
+    if (list.length > 0) {
+      return (
+        <List>
+          {list.map((friend, index) => (
+            <React.Fragment key={index}>
+              <Item user={friend} /> <Divider />
             </React.Fragment>
-          }
-        />
-      </ListItem>
-    ))}
-  </List>
-);
+          ))}
+        </List>
+      );
+    }
+  }
+  return <h3>{message}</h3>;
+};
 
 export default ListComponent;
