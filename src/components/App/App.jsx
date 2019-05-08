@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Card from '@material-ui/core/Card';
-import { database, auth } from '../../firebase';
-import './AppStyles.less';
+
 import Navigation from '../Navigation';
 import { StateProvider } from '../../context';
+import './AppStyles.less';
 
 function App() {
-  const [loading, setLoading] = useState('false');
   const initialState = {
     user: null,
     authenticated: false,
@@ -15,7 +14,7 @@ function App() {
     <StateProvider initialState={initialState}>
       <div className="App">
         <Card className="Main">
-          <Navigation />
+          <Navigation  />
         </Card>
       </div>
     </StateProvider>

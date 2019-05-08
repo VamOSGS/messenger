@@ -1,13 +1,13 @@
-import React, { Component, Fragment, useState, useEffect } from 'react';
+import React, { Fragment } from 'react';
 import Button from '@material-ui/core/Button';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import Typography from '@material-ui/core/Typography';
-import { database, auth, storage } from '../../firebase';
 import Image from './Image';
-import './Profile.less';
+import TopBar from '../TopBar';
+import { auth } from '../../firebase';
 import { useStateValue } from '../../context';
+import './Profile.less';
 
 const Profile = () => {
   const [{ user }] = useStateValue();
@@ -16,11 +16,12 @@ const Profile = () => {
   };
   return (
     <div className="Profile">
+      <TopBar title="Profile">
+        <Button type="file" onClick={SignOut} size="small" color="inherit">
+          Log out
+        </Button>
+      </TopBar>
       <CardContent>
-        <Typography color="textSecondary" gutterBottom>
-          Your Profile
-        </Typography>
-
         <Fragment>
           <Image />
           <Typography variant="h5" component="h2">
@@ -30,12 +31,6 @@ const Profile = () => {
           <Typography color="textSecondary">{user.email}</Typography>
         </Fragment>
       </CardContent>
-
-      <CardActions>
-        <Button type="file" onClick={SignOut} size="small">
-          Log out
-        </Button>
-      </CardActions>
     </div>
   );
 };

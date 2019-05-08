@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Route, Redirect } from 'react-router-dom';
+import SwipeableRoutes from 'react-swipeable-routes';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Navbar from './Navbar';
 import Login from '../Login';
@@ -37,12 +38,14 @@ const Navigation = () => {
   if (loading) return <CircularProgress className="AppLoader" />;
   return (
     <Fragment>
+      <SwipeableRoutes replace className="screen">
+        <PrivateRoute className="screen" path="/contacts" component={Friends} />
+        <PrivateRoute className="screen" path="/messages" component={Messages} />
+        <PrivateRoute className="screen" path="/me" component={Profile} />
+      </SwipeableRoutes>
       <Route exact path="/login" component={Login} />
       <Route exact path="/signup" component={Signup} />
       <Route exact path="/" render={() => <Redirect to="/me" />} />
-      <PrivateRoute path="/me" component={Profile} />
-      <PrivateRoute path="/messages" component={Messages} />
-      <PrivateRoute path="/friends" component={Friends} />
       {authenticated && <Navbar />}
     </Fragment>
   );

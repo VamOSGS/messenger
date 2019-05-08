@@ -10,7 +10,7 @@ import './Navbar.less';
 const Navbar = () => {
   const { pathname } = window.location;
   const getValue = () => {
-    if (pathname === '/friends') {
+    if (pathname === '/contacts') {
       return 0;
     } else if (pathname === '/messages') {
       return 1;
@@ -18,10 +18,24 @@ const Navbar = () => {
     return 2;
   };
   const [value, setValue] = useState(getValue);
+  useEffect(() => {
+    if (pathname === '/contacts') {
+      setValue(0);
+    } else if (pathname === '/messages') {
+      setValue(1);
+    } else {
+      setValue(2);
+    }
+  });
   if (pathname === '/signup') return null;
   return (
     <BottomNavigation className="Navbar" value={value} onChange={(e, v) => setValue(v)}>
-      <BottomNavigationAction component={Link} to="/friends" label="Friends" icon={<FaceIcon />} />
+      <BottomNavigationAction
+        component={Link}
+        to="/contacts"
+        label="Contacts"
+        icon={<FaceIcon />}
+      />
       <BottomNavigationAction
         component={Link}
         to="/messages"

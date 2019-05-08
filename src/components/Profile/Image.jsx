@@ -12,7 +12,7 @@ import { useStateValue } from '../../context';
 const Image = () => {
   const [loadingImage, setLoading] = useState(false);
   const [menu, toggleMenu] = useState(false);
-  const [{ user }] = useStateValue();
+  const [{ user }, dispatch] = useStateValue();
   const handleUpload = async (e) => {
     const file = await e.target.files[0];
     if (file) {
@@ -22,15 +22,18 @@ const Image = () => {
         .ref(`/user-images/${user.username}`)
         .child(`${user.username}-image`);
       try {
-        const upload = await imageRef.put(file, { contentType: file.type });
+        await imageRef.put(file, { contentType: file.type });
         const url = await imageRef.getDownloadURL();
-        const set = await auth().currentUser.updateProfile({
+        await auth().currentUser.updateProfile({
           photoURL: url,
         });
         await database()
           .ref('/users')
           .child(user.username)
           .set({ ...user, imageURL: url });
+        if (!user.imageURL) {
+          dispatch({ type: 'setUser', payload: { ...user, imageURL: url } });
+        }
         setLoading(false);
       } catch (error) {
         console.log(error);

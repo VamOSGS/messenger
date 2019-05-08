@@ -1,13 +1,17 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-return-assign */
 import React, { useState } from 'react';
-import TextField from '@material-ui/core/TextField';
+import IconButton from '@material-ui/core/IconButton';
+import InputBase from '@material-ui/core/InputBase';
+import SearchIcon from '@material-ui/icons/Search';
+import GroupAdd from '@material-ui/icons/GroupAdd';
 import List from './List';
+import TopBar from '../TopBar';
 import { useStateValue } from '../../context';
-import './Friends.less';
 import { database } from '../../firebase';
+import './Friends.less';
 
-const Friends = () => {
+const Friends = (props) => {
   const [list, updateList] = useState([]);
   const [searching, setSearching] = useState(false);
   const [{ user }] = useStateValue();
@@ -43,24 +47,29 @@ const Friends = () => {
         });
     } else if (e.target.value === user.username) {
       setSearching(false);
-      updateList(user.friendList);
+      updateList([]);
     } else {
-      updateList(user.friendList);
+      updateList([]);
     }
   };
   return (
     <div className="Friends">
-      <TextField onChange={handleChange} label="Search for new friends..." />
-      {searching && (
-        <React.Fragment>
-          <h3>Seaching</h3>
-          <List list={list} />
-        </React.Fragment>
-      )}
-      <React.Fragment>
-        <h3>Friends</h3>
+      <TopBar title={searching ? '' : 'Contacts'}>
+        <div className={`search ${searching && 'active'}`}>
+          <div className="searchIcon">
+            <SearchIcon />
+          </div>
+          <InputBase className="inputRoot" placeholder="Search…" onChange={handleChange} />
+        </div>
+        <IconButton onClick={() => setSearching(!searching)} aria-haspopup="true" color="inherit">
+          <GroupAdd />
+        </IconButton>
+      </TopBar>
+      {searching ? (
+        <List list={list} />
+      ) : (
         <List list={user.friendList} message="You don't have friends" />
-      </React.Fragment>
+      )}
     </div>
   );
 };

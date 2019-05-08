@@ -12,6 +12,11 @@ export default (state, action) => {
         authenticated: false,
         user: null,
       };
+    case 'setChats':
+      return {
+        ...state,
+        chats: action.payload,
+      };
     default:
       return state;
   }
