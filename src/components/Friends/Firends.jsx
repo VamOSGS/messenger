@@ -1,10 +1,9 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-return-assign */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import IconButton from '@material-ui/core/IconButton';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
-import GroupAdd from '@material-ui/icons/GroupAdd';
+import BackIcon from '@material-ui/icons/ArrowBack';
+import { LinearProgress } from '@material-ui/core';
 import List from './List';
 import TopBar from '../TopBar';
 import { useStateValue } from '../../context';
@@ -14,7 +13,7 @@ import './Friends.less';
 const Friends = (props) => {
   const [list, updateList] = useState([]);
   const [searching, setSearching] = useState(false);
-  const [{ user }] = useStateValue();
+  const [{ user }, dispatch] = useStateValue();
   const handleChange = (e) => {
     setSearching(true);
     if (!e.target.value) {
@@ -52,8 +51,23 @@ const Friends = (props) => {
       updateList([]);
     }
   };
+  const [friendList, setFriendList] = useState(user.friendList);
+  const checkFriendList = typeof friendList[0] === 'string';
+  useEffect(() => {
+    if (checkFriendList) {
+      Promise.all(friendList.map(username =>
+        database()
+          .ref('/users')
+          .child(username)
+          .once('value')
+          .then(snapshot => snapshot.val()))).then((users) => {
+        dispatch({ type: 'setFriends', payload: users });
+        setFriendList(users);
+      });
+    }
+  }, []);
   return (
-    <div className="Friends">
+    <div className={`Friends ${searching && 'searching'}`}>
       <TopBar title={searching ? '' : 'Contacts'}>
         <div className={`search ${searching && 'active'}`}>
           <div className="searchIcon">
@@ -62,13 +76,18 @@ const Friends = (props) => {
           <InputBase className="inputRoot" placeholder="Search…" onChange={handleChange} />
         </div>
         <IconButton onClick={() => setSearching(!searching)} aria-haspopup="true" color="inherit">
-          <GroupAdd />
+          {searching ? <BackIcon /> : <SearchIcon />}
         </IconButton>
       </TopBar>
-      {searching ? (
-        <List list={list} />
+      {searching && (
+        <div className="searchList">
+          <List list={list} />
+        </div>
+      )}
+      {!checkFriendList ? (
+        <List list={friendList} message="You don't have friends" />
       ) : (
-        <List list={user.friendList} message="You don't have friends" />
+        <LinearProgress />
       )}
     </div>
   );

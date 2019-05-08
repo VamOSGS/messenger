@@ -17,6 +17,11 @@ export default (state, action) => {
         ...state,
         chats: action.payload,
       };
+    case 'setFriends':
+      return {
+        ...state,
+        friendList: action.payload,
+      };
     default:
       return state;
   }

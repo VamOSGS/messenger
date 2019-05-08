@@ -36,16 +36,6 @@ const Item = ({ user, history }) => {
       .child('/friendList')
       .set(state.user.friendList.filter(f => f !== friend.username));
   };
-  useEffect(() => {
-    if (typeof friend === 'string') {
-      database()
-        .ref('/users')
-        .child(friend)
-        .once('value', (snapshot) => {
-          setFriend({ ...snapshot.val(), isFriend: true });
-        });
-    }
-  }, []);
   const startChat = () => {
     const chatName = `${friend.username}-${state.user.username}`;
     const chatsRef = u =>
